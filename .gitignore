@@ -1,0 +1,55 @@
+# === Logs ===
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# === 依赖 / 构建产物 ===
+node_modules
+dist
+dist-ssr
+*.local
+
+# === Rust / Tauri 编译产物（几 GB，必须忽略）===
+src-tauri/target/
+src-tauri/gen/schemas/
+
+# === 数据文件（用户隐私，绝对不能提交）===
+# 应用实际数据库放在 ~/Library/Application Support/，不在项目里，
+# 但防御性地把所有 db 后缀都忽略，防止误拷贝
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+
+# === 打包产物（太大，不入库）===
+*.dmg
+*.app/
+
+# === 编辑器 ===
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea
+.cursor/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# === 操作系统 ===
+.DS_Store
+Thumbs.db
+
+# === 环境变量 / 密钥（预防性）===
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
