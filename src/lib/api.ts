@@ -3,6 +3,8 @@ import type {
   Account,
   AccountInput,
   DashboardSummary,
+  Goal,
+  GoalInput,
   Holding,
   HoldingInput,
   HoldingView,
@@ -15,6 +17,9 @@ import type {
   OptionTradeView,
   RefreshReport,
   Snapshot,
+  StockTrade,
+  StockTradeInput,
+  StockTradeView,
 } from "./types";
 
 export const api = {
@@ -66,4 +71,19 @@ export const api = {
   deleteOptionTrade: (id: number) =>
     invoke<void>("delete_option_trade", { id }),
   getOptionDashboard: () => invoke<OptionDashboard>("get_option_dashboard"),
+
+  // stock trades
+  listStockTrades: () => invoke<StockTradeView[]>("list_stock_trades"),
+  recordStockBuy: (input: StockTradeInput) =>
+    invoke<StockTrade>("record_stock_buy", { input }),
+  recordStockSell: (input: StockTradeInput) =>
+    invoke<StockTrade>("record_stock_sell", { input }),
+  deleteStockTrade: (id: number) => invoke<void>("delete_stock_trade", { id }),
+
+  // goals
+  listGoals: () => invoke<Goal[]>("list_goals"),
+  createGoal: (input: GoalInput) => invoke<Goal>("create_goal", { input }),
+  updateGoal: (id: number, input: GoalInput) =>
+    invoke<Goal>("update_goal", { id, input }),
+  deleteGoal: (id: number) => invoke<void>("delete_goal", { id }),
 };

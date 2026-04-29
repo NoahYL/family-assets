@@ -33,6 +33,8 @@ const ownerTone: Record<string, "blue" | "green" | "slate"> = {
 const strategyLabel = {
   sell_put: "Sell Put",
   covered_call: "Covered Call",
+  buy_call: "Buy Call",
+  buy_put: "Buy Put",
 } as const;
 
 const statusLabel: Record<OptionStatus, string> = {
@@ -529,18 +531,28 @@ export default function Options() {
             <Select
               value={form.strategy}
               onChange={(e) => {
-                const strategy = e.target.value as "sell_put" | "covered_call";
-                setForm({
-                  ...form,
-                  strategy,
-                  option_type: strategy === "sell_put" ? "put" : "call",
-                });
+                const strategy = e.target.value as
+                  | "sell_put"
+                  | "covered_call"
+                  | "buy_call"
+                  | "buy_put";
+                const optionType: "put" | "call" =
+                  strategy === "sell_put" || strategy === "buy_put"
+                    ? "put"
+                    : "call";
+                setForm({ ...form, strategy, option_type: optionType });
               }}
             >
-              <option value="sell_put">Sell Put（留现金等接）</option>
-              <option value="covered_call">
-                Covered Call（持股卖 call）
-              </option>
+              <optgroup label="卖方（收权利金）">
+                <option value="sell_put">Sell Put（留现金等接）</option>
+                <option value="covered_call">
+                  Covered Call（持股卖 call）
+                </option>
+              </optgroup>
+              <optgroup label="买方（付权利金）">
+                <option value="buy_call">Buy Call（裸买看涨）</option>
+                <option value="buy_put">Buy Put（裸买看跌）</option>
+              </optgroup>
             </Select>
           </Field>
           <Field label="账户">
@@ -786,8 +798,22 @@ export default function Options() {
               确认「<b>{expireTarget.underlying_symbol} {expireTarget.strike}
               {expireTarget.option_type === "put" ? "P" : "C"}</b>」到期未被行权？
               <div className="mt-2 text-xs text-slate-500">
-                将记为已实现收入：{expireTarget.currency}{" "}
-                {fmtNumber(expireTarget.premium_total, 2)}，不影响任何持仓。
+                {expireTarget.strategy === "buy_call" ||
+                expireTarget.strategy === "buy_put" ? (
+                  <>
+                    买方期权到期作废，权利金全损：已实现 PnL ={" "}
+                    <b className="text-red-600">
+                      −{expireTarget.currency}{" "}
+                      {fmtNumber(expireTarget.premium_total, 2)}
+                    </b>
+                    （现金不变，开仓时已扣）
+                  </>
+                ) : (
+                  <>
+                    将记为已实现收入：{expireTarget.currency}{" "}
+                    {fmtNumber(expireTarget.premium_total, 2)}，不影响任何持仓。
+                  </>
+                )}
               </div>
             </>
           )
@@ -808,7 +834,7 @@ export default function Options() {
               {assignTarget.option_type === "put" ? "P" : "C"}</b>」被行权？
               <div className="mt-3 rounded bg-amber-50 text-amber-800 text-xs px-3 py-2 space-y-1">
                 <div className="font-medium">⚠️ 请手动到「持仓」页调整：</div>
-                {assignTarget.strategy === "covered_call" ? (
+                {assignTarget.strategy === "covered_call" && (
                   <>
                     <div>
                       ① 减少 {assignTarget.underlying_symbol} 持仓{" "}
@@ -823,7 +849,8 @@ export default function Options() {
                       ).toFixed(2)}
                     </div>
                   </>
-                ) : (
+                )}
+                {assignTarget.strategy === "sell_put" && (
                   <>
                     <div>
                       ① 减少现金 {assignTarget.currency}{" "}
@@ -840,6 +867,43 @@ export default function Options() {
                         assignTarget.strike - assignTarget.premium_per_share
                       ).toFixed(2)}
                       /股（行权价 − 权利金）
+                    </div>
+                  </>
+                )}
+                {assignTarget.strategy === "buy_call" && (
+                  <>
+                    <div>
+                      ① 减少现金 {assignTarget.currency}{" "}
+                      {(
+                        assignTarget.strike *
+                        assignTarget.contracts *
+                        assignTarget.multiplier
+                      ).toFixed(2)}{" "}
+                      （按行权价付出）
+                    </div>
+                    <div>
+                      ② 增加 {assignTarget.underlying_symbol} 持仓{" "}
+                      {assignTarget.contracts * assignTarget.multiplier} 股，成本建议按{" "}
+                      {(
+                        assignTarget.strike + assignTarget.premium_per_share
+                      ).toFixed(2)}
+                      /股（行权价 + 已付权利金）
+                    </div>
+                  </>
+                )}
+                {assignTarget.strategy === "buy_put" && (
+                  <>
+                    <div>
+                      ① 减少 {assignTarget.underlying_symbol} 持仓{" "}
+                      {assignTarget.contracts * assignTarget.multiplier} 股（按行权价交付）
+                    </div>
+                    <div>
+                      ② 增加现金 {assignTarget.currency}{" "}
+                      {(
+                        assignTarget.strike *
+                        assignTarget.contracts *
+                        assignTarget.multiplier
+                      ).toFixed(2)}
                     </div>
                   </>
                 )}

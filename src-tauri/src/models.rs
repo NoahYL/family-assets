@@ -117,6 +117,8 @@ pub struct HoldingView {
 pub struct Snapshot {
     pub id: i64,
     pub snapshot_at: String,
+    pub snapshot_date: Option<String>,
+    pub snapshot_month: Option<String>,
     pub total_cny: f64,
     pub total_by_class_json: String,
     pub total_by_account_json: String,
@@ -164,6 +166,62 @@ pub struct FxRate {
     pub quote: String,
     pub rate: f64,
     pub fetched_at: String,
+}
+
+// ====== 股票/基金买卖交易日志 ======
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct StockTrade {
+    pub id: i64,
+    pub account_id: i64,
+    pub instrument_id: i64,
+    /// buy | sell
+    pub side: String,
+    pub quantity: f64,
+    pub price_per_share: f64,
+    pub trade_date: String,
+    pub currency: String,
+    pub cash_holding_id: Option<i64>,
+    pub realized_pnl: Option<f64>,
+    pub avg_cost_at_trade: Option<f64>,
+    pub note: Option<String>,
+    pub created_at: String,
+    pub updated_at: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct StockTradeInput {
+    pub account_id: i64,
+    pub instrument_id: i64,
+    pub quantity: f64,
+    pub price_per_share: f64,
+    pub trade_date: String,
+    pub cash_holding_id: Option<i64>,
+    pub note: Option<String>,
+}
+
+/// 带展示用元数据的交易视图
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct StockTradeView {
+    pub id: i64,
+    pub account_id: i64,
+    pub account_name: String,
+    pub account_owner: String,
+    pub instrument_id: i64,
+    pub instrument_symbol: String,
+    pub instrument_name: String,
+    pub side: String,
+    pub quantity: f64,
+    pub price_per_share: f64,
+    pub total: f64,
+    pub trade_date: String,
+    pub currency: String,
+    pub cash_holding_id: Option<i64>,
+    pub realized_pnl: Option<f64>,
+    pub avg_cost_at_trade: Option<f64>,
+    pub note: Option<String>,
+    pub created_at: String,
+    pub updated_at: String,
 }
 
 // ====== 期权交易日志（Wheel 策略）======
@@ -277,6 +335,37 @@ pub struct OptionDashboard {
     /// 所有已结束单子的统计：胜率 = 盈利单 / 总结束单数
     pub win_rate: Option<f64>,
     pub closed_count: i64,
+}
+
+// ====== 攒钱目标 ======
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Goal {
+    pub id: i64,
+    pub name: String,
+    pub target_amount: f64,
+    pub target_date: String,
+    pub start_amount: f64,
+    pub start_date: String,
+    /// 生息资产年化（股票/基金/债券/黄金/其他），小数表示
+    pub expected_annual_return: f64,
+    /// 房产年化变化率，可以是负数，小数表示
+    pub realestate_annual_return: f64,
+    pub note: Option<String>,
+    pub created_at: String,
+    pub updated_at: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct GoalInput {
+    pub name: String,
+    pub target_amount: f64,
+    pub target_date: String,
+    pub start_amount: f64,
+    pub start_date: String,
+    pub expected_annual_return: f64,
+    pub realestate_annual_return: f64,
+    pub note: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

@@ -53,6 +53,16 @@ pub fn run() {
             commands::options::mark_option_rolled,
             commands::options::delete_option_trade,
             commands::options::get_option_dashboard,
+            // stock trades
+            commands::stock_trades::list_stock_trades,
+            commands::stock_trades::record_stock_buy,
+            commands::stock_trades::record_stock_sell,
+            commands::stock_trades::delete_stock_trade,
+            // goals
+            commands::goals::list_goals,
+            commands::goals::create_goal,
+            commands::goals::update_goal,
+            commands::goals::delete_goal,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

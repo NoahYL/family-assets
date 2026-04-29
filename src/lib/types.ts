@@ -157,7 +157,11 @@ export interface RefreshReport {
 
 // ====== 期权（Wheel 策略）======
 
-export type OptionStrategy = "sell_put" | "covered_call";
+export type OptionStrategy =
+  | "sell_put"
+  | "covered_call"
+  | "buy_call"
+  | "buy_put";
 export type OptionSide = "put" | "call";
 export type OptionStatus = "open" | "expired" | "assigned" | "closed" | "rolled";
 
@@ -247,9 +251,93 @@ export interface OptionDashboard {
   closed_count: number;
 }
 
+// ====== 股票/基金买卖交易 ======
+
+export type TradeSide = "buy" | "sell";
+
+export interface StockTrade {
+  id: number;
+  account_id: number;
+  instrument_id: number;
+  side: TradeSide;
+  quantity: number;
+  price_per_share: number;
+  trade_date: string;
+  currency: string;
+  cash_holding_id?: number | null;
+  realized_pnl?: number | null;
+  avg_cost_at_trade?: number | null;
+  note?: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface StockTradeInput {
+  account_id: number;
+  instrument_id: number;
+  quantity: number;
+  price_per_share: number;
+  trade_date: string;
+  cash_holding_id?: number | null;
+  note?: string | null;
+}
+
+export interface StockTradeView {
+  id: number;
+  account_id: number;
+  account_name: string;
+  account_owner: string;
+  instrument_id: number;
+  instrument_symbol: string;
+  instrument_name: string;
+  side: TradeSide;
+  quantity: number;
+  price_per_share: number;
+  total: number;
+  trade_date: string;
+  currency: string;
+  cash_holding_id?: number | null;
+  realized_pnl?: number | null;
+  avg_cost_at_trade?: number | null;
+  note?: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// ====== 攒钱目标 ======
+
+export interface Goal {
+  id: number;
+  name: string;
+  target_amount: number;
+  target_date: string; // YYYY-MM-DD
+  start_amount: number;
+  start_date: string; // YYYY-MM-DD
+  /** 生息资产年化，小数 */
+  expected_annual_return: number;
+  /** 房产年化变化率（可负），小数 */
+  realestate_annual_return: number;
+  note?: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface GoalInput {
+  name: string;
+  target_amount: number;
+  target_date: string;
+  start_amount: number;
+  start_date: string;
+  expected_annual_return: number;
+  realestate_annual_return: number;
+  note?: string | null;
+}
+
 export interface Snapshot {
   id: number;
   snapshot_at: string;
+  snapshot_date?: string | null;
+  snapshot_month?: string | null;
   total_cny: number;
   total_by_class_json: string;
   total_by_account_json: string;

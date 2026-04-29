@@ -3,6 +3,8 @@ import Dashboard from "./pages/Dashboard";
 import Accounts from "./pages/Accounts";
 import Holdings from "./pages/Holdings";
 import Options from "./pages/Options";
+import Goals from "./pages/Goals";
+import Trades from "./pages/Trades";
 import Trend from "./pages/Trend";
 import Instruments from "./pages/Instruments";
 import { cn } from "./lib/cn";
@@ -10,10 +12,12 @@ import { cn } from "./lib/cn";
 const nav = [
   { to: "/", label: "总览", end: true },
   { to: "/holdings", label: "持仓" },
+  { to: "/trades", label: "股票交易" },
   { to: "/options", label: "期权" },
   { to: "/accounts", label: "账户" },
   { to: "/instruments", label: "品种库" },
   { to: "/trend", label: "趋势" },
+  { to: "/goals", label: "目标" },
 ];
 
 export default function App() {
@@ -51,10 +55,12 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/holdings" element={<Holdings />} />
+          <Route path="/trades" element={<Trades />} />
           <Route path="/options" element={<Options />} />
           <Route path="/accounts" element={<Accounts />} />
           <Route path="/instruments" element={<Instruments />} />
           <Route path="/trend" element={<Trend />} />
+          <Route path="/goals" element={<Goals />} />
         </Routes>
       </main>
     </div>

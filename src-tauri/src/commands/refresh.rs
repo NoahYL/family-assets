@@ -97,20 +97,22 @@ pub async fn refresh_all(db: State<'_, Db>) -> AppResult<RefreshReport> {
     let now = Local::now();
     let snapshot_at = now.format("%Y-%m-%d %H:%M:%S").to_string();
     let snapshot_month = now.format("%Y-%m").to_string();
+    let snapshot_date = now.format("%Y-%m-%d").to_string();
     let by_class_json = serde_json::to_string(&by_class)?;
     let by_account_json = serde_json::to_string(&by_account)?;
     let by_currency_json = serde_json::to_string(&by_currency)?;
 
-    // 一月一点：同月已存在则覆盖（取最新刷新时间为当月终值），否则插入
+    // 一日一点：同一天已存在则覆盖（取当日最新一次刷新作为当日收盘），否则插入
     let snapshot_id = {
         let conn = db.conn.lock().unwrap();
         conn.execute(
             "INSERT INTO snapshots
-               (snapshot_at, snapshot_month, total_cny,
+               (snapshot_at, snapshot_month, snapshot_date, total_cny,
                 total_by_class_json, total_by_account_json, total_by_currency_json)
-             VALUES (?1, ?2, ?3, ?4, ?5, ?6)
-             ON CONFLICT(snapshot_month) DO UPDATE SET
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)
+             ON CONFLICT(snapshot_date) DO UPDATE SET
                snapshot_at             = excluded.snapshot_at,
+               snapshot_month          = excluded.snapshot_month,
                total_cny               = excluded.total_cny,
                total_by_class_json     = excluded.total_by_class_json,
                total_by_account_json   = excluded.total_by_account_json,
@@ -118,16 +120,16 @@ pub async fn refresh_all(db: State<'_, Db>) -> AppResult<RefreshReport> {
             rusqlite::params![
                 snapshot_at,
                 snapshot_month,
+                snapshot_date,
                 total_cny,
                 by_class_json,
                 by_account_json,
                 by_currency_json
             ],
         )?;
-        // last_insert_rowid() 对 UPDATE 不会变，所以拿月份对应的 id
         conn.query_row(
-            "SELECT id FROM snapshots WHERE snapshot_month = ?1",
-            [&snapshot_month],
+            "SELECT id FROM snapshots WHERE snapshot_date = ?1",
+            [&snapshot_date],
             |r| r.get::<_, i64>(0),
         )?
     };
