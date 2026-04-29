@@ -47,11 +47,22 @@ pub async fn fetch(source: &str, symbol: &str) -> AppResult<Quote> {
     let price = match source {
         "sina_cn" => {
             // 0:名称 1:今开 2:昨收 3:当前 4:最高 5:最低 ...
-            parse_f64(parts.get(3), symbol)?
+            // 盘前（9:30 前）当前价=0，回退昨收，避免覆盖价表为 0
+            let cur = parse_f64(parts.get(3), symbol).unwrap_or(0.0);
+            if cur > 0.0 {
+                cur
+            } else {
+                parse_f64(parts.get(2), symbol)?
+            }
         }
         "sina_hk" => {
             // 0:英文名 1:中文名 2:今开 3:昨收 4:最高 5:最低 6:当前 ...
-            parse_f64(parts.get(6), symbol)?
+            let cur = parse_f64(parts.get(6), symbol).unwrap_or(0.0);
+            if cur > 0.0 {
+                cur
+            } else {
+                parse_f64(parts.get(3), symbol)?
+            }
         }
         "sina_us" => {
             // 0:名称 1:当前 ...
